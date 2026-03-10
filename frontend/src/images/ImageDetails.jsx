@@ -1,19 +1,49 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { fetchById } from "./ImageFetcher.js";
 import { useParams } from "react-router";
+import { ImageNameEditor } from "./ImageNameEditor.jsx"
 
 export function ImageDetails() {
+    const [loading, setLoading] = useState(true)
+    const [errorMessage, setErrorMessage] = useState("")
     const { imgId } = useParams();
-    const [image] = useState(fetchById(imgId));
+    const [image, setImage] = useState(undefined);
+
+    useEffect(() => {
+        const url = "/api/images";
+
+        async function doFetch() {
+            try {
+                const response = await fetch(url);
+                console.log("it is running")
+                if (!response.ok) {
+                  throw new Error(`Error: HTTP ${response.status} ${response.statusText}`);
+                }
+                const result = await response.json(); //parses to JSON
+                setImage(result.find(image => image._id === imgId));
+            } catch (error) {
+                setErrorMessage(error.message)
+            } finally {
+                setLoading(false)
+            }
+        }
+        doFetch();
+    }, []);
+
+    if (loading){
+        return <h2>Loading...</h2>
+    }
 
     if (!image) {
         return <h2>Image not found</h2>
     }
 
+
     return (
         <div>
             <h2>{image.name}</h2>
             <p>By {image.author.username}</p>
+            <ImageNameEditor imageId={imgId} initialValue={image.name} />
             <img className="ImageDetails-img" src={image.src} alt={image.name} />
         </div>
     )
