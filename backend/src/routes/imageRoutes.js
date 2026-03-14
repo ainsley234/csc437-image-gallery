@@ -1,5 +1,6 @@
 import express from "express";
 import { ImageProvider } from "../ImageProvider.js";
+import {verifyAuthToken } from "./authToken.js"
 
 //artificially delay the response by 1 sec
 function waitDuration(numMs) {
@@ -7,6 +8,9 @@ function waitDuration(numMs) {
 }
 
 export function registerImageRoutes(app, imageProvider) {
+    app.use("/api/images{/*all}", verifyAuthToken);
+    app.use("/api/image{/*all}", verifyAuthToken);
+
     app.get("/api/images", async (req, res) => {
         const imgs = await imageProvider.getAllImages();
         await waitDuration(1000)
@@ -24,8 +28,6 @@ export function registerImageRoutes(app, imageProvider) {
                 error: "Not Found",
                 message: "Image does not exist"
             });
-
-
         } else {
             res.json(img);
         }
@@ -36,7 +38,11 @@ export function registerImageRoutes(app, imageProvider) {
         const newName = req.query["name"];
         const MAX_NAME_LENGTH = 100;
 
+
         try {
+            const img = await this.collection_img.findOne({ _id: imageId });
+            if (res.user.username != img.authorId) { throw new Error("403") } //authorID is the username
+
             const matchedCount = await imageProvider.updateImageName(ID, newName);
 
             if (matchedCount == 0) {

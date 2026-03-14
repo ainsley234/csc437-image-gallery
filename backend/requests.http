@@ -10,8 +10,10 @@ Content-Type: application/json # Content-Type header is a must if you're sending
 { "a": 1, "b": 2 }
 
 ### Get 1 image by ID
-POST http://localhost:3000/api/image
+GET http://localhost:3000/api/image/69adeb64b18b59ec9e6d6360
 Content-Type: application/json 
-### Get 1 image by ID
-POST http://localhost:3000/api/images/:id
+
+### Rename an image
+PUT http://localhost:3000/api/image/69adeb64b18b59ec9e6d6360/name?name=NewName
 Content-Type: application/json 
+
