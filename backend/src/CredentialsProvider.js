@@ -18,7 +18,7 @@ export class CredentialsProvider{
 
     async registerUser(username, email, password) {
         const existing = await this.collection.findOne({ username: username });
-        if (existing) { throw new Error("401") } // username already exists
+        if (existing) { throw new Error("409") } // username already exists
 
         const salt = await bcrypt.genSalt(10)
         const hashedPassword = await bcrypt.hash(password, salt)

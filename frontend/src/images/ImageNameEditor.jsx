@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export function ImageNameEditor({ imageId, initialValue }) {
+export function ImageNameEditor({ imageId, initialValue, runMe, token }) {
     const [isEditingName, setIsEditingName] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [error, setError] = useState("");
@@ -16,16 +16,26 @@ export function ImageNameEditor({ imageId, initialValue }) {
         try{
             const response = await fetch(
                 `/api/image/${imageId}/name?name=${encodeURIComponent(nameInput)}`,
-                { method: "PUT" }
+                { method: "PUT",
+                 headers: {'Authorization': `Bearer ${token}`}
+                 }
             )
             if (!response.ok) {
                 try {
-                    const data = await response.json()
-                    setError(data?.message)
-                } catch { setError("Unknown Error") }
+                    if (response.status == 400) {
+                         setError("Invalid image name");
+                    } else if (response.status === 403) {
+                        setError("You don’t have permission to edit this image");
+                    } else if (response.status === 413) {
+                         setError("Image name is too long");
+                        }
+                } catch {
+                    setError("Unknown Error")
+                }
                 return
             }
             setIsEditingName(false)
+            runMe(newName)
         } catch (err){
             setError("Unknown Error")
         } finally {

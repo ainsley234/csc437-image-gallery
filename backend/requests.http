@@ -17,3 +17,15 @@ Content-Type: application/json
 PUT http://localhost:3000/api/image/69adeb64b18b59ec9e6d6360/name?name=NewName
 Content-Type: application/json 
 
+### 
+POST  http://localhost:3000/api/users
+Content-Type: application/json
+
+{ "username": "bob", "email": " ", "password": " psw" }
+
+### 
+POST  http://localhost:3000/api/auth/tokens
+Content-Type: application/json
+
+{ "username": "ainsley", "password": "psw" }
+

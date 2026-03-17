@@ -73,5 +73,16 @@ export class ImageProvider {
         return result.matchedCount
     }
 
+    async createImage(file) {
+        const document = {
+            src = `/uploads/${req.file.filename}`,
+            name = req.body.name,
+            authorId = 0, ///GET THIS FROM token
+            createdAt: new Date()
+        }
+        const result = await this.collection_img.insertOne(document);
+        return result.insertedId;
+
+    }
 }
 

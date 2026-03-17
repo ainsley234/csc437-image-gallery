@@ -3,18 +3,24 @@ import { fetchById } from "./ImageFetcher.js";
 import { useParams } from "react-router";
 import { ImageNameEditor } from "./ImageNameEditor.jsx"
 
-export function ImageDetails() {
+export function ImageDetails({ token }) {
     const [loading, setLoading] = useState(true)
     const [errorMessage, setErrorMessage] = useState("")
     const { imgId } = useParams();
     const [image, setImage] = useState(undefined);
+
+    function runMe(newName) {
+        const newImg = {...image}
+        newImg.name = newName
+        setImage(newImg)
+    }
 
     useEffect(() => {
         const url = "/api/images";
 
         async function doFetch() {
             try {
-                const response = await fetch(url);
+                const response = await fetch(url, { headers: {'Authorization': `Bearer ${token}`} });
                 console.log("it is running")
                 if (!response.ok) {
                   throw new Error(`Error: HTTP ${response.status} ${response.statusText}`);
@@ -43,7 +49,7 @@ export function ImageDetails() {
         <div>
             <h2>{image.name}</h2>
             <p>By {image.author.username}</p>
-            <ImageNameEditor imageId={imgId} initialValue={image.name} />
+            <ImageNameEditor imageId={imgId} initialValue={image.name} runMe={runMe} token={token} />
             <img className="ImageDetails-img" src={image.src} alt={image.name} />
         </div>
     )

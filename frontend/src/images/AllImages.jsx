@@ -3,7 +3,7 @@ import { MainLayout } from "../MainLayout.jsx";
 import { fetchAll } from "./ImageFetcher.js";
 import { ImageGrid } from "./ImageGrid.jsx";
 
-export function AllImages() {
+export function AllImages({ token }) {
     const [imageData, _setImageData] = useState([]);
     const [loading, setLoading] = useState(true)
     const [errorMessage, setErrorMessage] = useState("")
@@ -14,8 +14,7 @@ export function AllImages() {
         async function doFetch() {
             try {
 
-                const response = await fetch(url);
-                console.log("it is running")
+                const response = await fetch(url, { headers: {'Authorization': `Bearer ${token}`} } );
                 if (!response.ok) {
                   throw new Error(`Error: HTTP ${response.status} ${response.statusText}`);
                 }

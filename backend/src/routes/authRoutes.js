@@ -38,7 +38,8 @@ export function registerAuthRoutes(app, credentialsProvider) {
             if (!username || !email || !password) { throw new Error("400") } // invalid input
 
             await credentialsProvider.registerUser(username, email, password);
-            return res.sendStatus(201); // success, no content
+            const token = await generateAuthToken(username)
+            return res.json({token});
         } catch (err) {
             if (err.message === "409") {
                 return res.status(409).send({
