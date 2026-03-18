@@ -1,0 +1,5 @@
+### img
+GET http://localhost:3000/api/images
+
+>> img/response-{{$timestamp}}.json
+

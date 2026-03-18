@@ -15,6 +15,7 @@ export class CredentialsProvider{
 
     async verifyPassword(username, password) {
         const account = await this.credsCollection.findOne({ username: username });
+        if (!account) {return false}
         return bcrypt.compare(password, account.password)
     }
 

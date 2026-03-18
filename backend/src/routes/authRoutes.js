@@ -60,7 +60,6 @@ export function registerAuthRoutes(app, credentialsProvider) {
 
     app.post("/api/auth/tokens", async (req, res) => {
         try{
-            console.log(req.body)
             const { username, password } = req.body;
             if (!username || !password) { throw new Error("400") }
 
@@ -71,17 +70,19 @@ export function registerAuthRoutes(app, credentialsProvider) {
             return res.json({token});
         } catch (err) {
             if (err.message === "400") {
-                res.status(400).send({
+                return res.status(400).send({
                     error: "Bad request",
                     message: "Missing username or password"
                 });
             }
             if (err.message === "401") {
-                res.status(401).send({
+                return res.status(401).send({
                     error: "Unauthorized",
                     message: "Please try a different username or password"
                 });
             }
+            console.log(err)
+            return res.sendStatus(500)
         }
     });
 

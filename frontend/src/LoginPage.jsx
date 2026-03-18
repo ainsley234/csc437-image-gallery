@@ -24,25 +24,24 @@ export function LoginPage({ needToReg, setToken }) {
                   { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({email, password, username}) }
                   );
               if (!response.ok) {
-                throw new Error(`Error: HTTP ${response.status} ${response.statusText}`);
-              }
+                if (response.status === 409) {
+                    return "Username taken, please choose a different username or sign in";
+                }
+                if (response.status === 401) {
+                    return "That username / password combination does not exist";
+                }
+                if (response.status === 400) {
+                    return "Please fill out all required fields.";
+                }
+                return `Error: HTTP ${response.status} ${response.statusText}`;
+            }
 
               const result = await response.json(); //parses to JSON
               setToken(result.token);
-
-              console.log(result)
-
-              return <Navigate to="/" replace />
+              navigate("/")
+              return null
           } catch (error) {
-              if (response != null) {
-                  if (response.status == 409) {
-                        return("Please choose a different username, or sign-in!")
-                  }
-                  if (response.status == 401) {
-                        return("Please try a different username or password!")
-                  }
-                  return(error.message)
-              }
+              return(error.message)
           }
           return null
         },
@@ -52,22 +51,22 @@ export function LoginPage({ needToReg, setToken }) {
     return (
         <div>
             {isRegistering ? <h2>Register a new account</h2> : <h2>Login</h2>}
-            {result}
+            {result && <p role="alert">{result}</p>}
 
             <form className="LoginPage-form" action={submitAction}>
 
                 <label htmlFor={usernameInputId}>Username</label>
-                <input id={usernameInputId} required name="username"/>
+                <input id={usernameInputId} required name="username" disabled={isPending}/>
 
                 {isRegistering &&
                     <div>
-                        <label htmlFor={usernameInputId}>Email</label>
-                        <input id={emailInputId} required name="email"/>
+                        <label htmlFor={emailInputId}>Email</label>
+                        <input id={emailInputId} required name="email" disabled={isPending}/>
                     </div>
                 }
 
                 <label htmlFor={passwordInputId}>Password</label>
-                <input id={passwordInputId} type="password" required  name="password"/>
+                <input id={passwordInputId} type="password" required  name="password" disabled={isPending}/>
 
                 <input type="submit" value="Submit" disabled={isPending}/>
             </form>
