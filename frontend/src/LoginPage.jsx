@@ -1,4 +1,4 @@
-import { React, useState, useEffect, useActionState } from "react"
+import React, { useState, useId, useEffect, useActionState } from "react"
 import { Link, Navigate, useNavigate} from "react-router"
 import { MainLayout } from "./MainLayout.jsx";
 import "./LoginPage.css";
@@ -27,7 +27,6 @@ export function LoginPage({ needToReg, setToken }) {
                 throw new Error(`Error: HTTP ${response.status} ${response.statusText}`);
               }
 
-
               const result = await response.json(); //parses to JSON
               setToken(result.token);
 
@@ -38,14 +37,13 @@ export function LoginPage({ needToReg, setToken }) {
               if (response != null) {
                   if (response.status == 409) {
                         return("Please choose a different username, or sign-in!")
-                    }
-                    if (response.status == 401) {
-                        return("Please try a different username or password!")
-                      }
-                    return(error.message)
                   }
+                  if (response.status == 401) {
+                        return("Please try a different username or password!")
+                  }
+                  return(error.message)
+              }
           }
-
           return null
         },
         null
@@ -66,8 +64,7 @@ export function LoginPage({ needToReg, setToken }) {
                         <label htmlFor={usernameInputId}>Email</label>
                         <input id={emailInputId} required name="email"/>
                     </div>
-                    }
-
+                }
 
                 <label htmlFor={passwordInputId}>Password</label>
                 <input id={passwordInputId} type="password" required  name="password"/>

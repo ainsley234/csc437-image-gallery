@@ -16,17 +16,17 @@ export function ImageDetails({ token }) {
     }
 
     useEffect(() => {
-        const url = "/api/images";
+        const url = `/api/image/${imgId}`;
 
         async function doFetch() {
             try {
                 const response = await fetch(url, { headers: {'Authorization': `Bearer ${token}`} });
-                console.log("it is running")
+
                 if (!response.ok) {
                   throw new Error(`Error: HTTP ${response.status} ${response.statusText}`);
                 }
                 const result = await response.json(); //parses to JSON
-                setImage(result.find(image => image._id === imgId));
+                setImage(result);
             } catch (error) {
                 setErrorMessage(error.message)
             } finally {
@@ -34,16 +34,17 @@ export function ImageDetails({ token }) {
             }
         }
         doFetch();
-    }, []);
+    }, [imgId, token]);
 
     if (loading){
         return <h2>Loading...</h2>
     }
-
+    if (errorMessage) {
+        return <h2>{errorMessage}</h2>;
+    }
     if (!image) {
         return <h2>Image not found</h2>
     }
-
 
     return (
         <div>

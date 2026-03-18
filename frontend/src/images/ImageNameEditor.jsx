@@ -4,12 +4,13 @@ export function ImageNameEditor({ imageId, initialValue, runMe, token }) {
     const [isEditingName, setIsEditingName] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [error, setError] = useState("");
+    const [nameInput, setNameInput] = useState(initialValue);
 
-    const [nameInput, setNameInput] = useState(initialValue || "");
     function handleEditPressed() {
+        setNameInput(initialValue);
         setIsEditingName(true);
-        setNameInput(initialValue || "");
     }
+
     async function handleSubmitPressed() {
         setError("")
         setIsSaving(true)
@@ -35,7 +36,7 @@ export function ImageNameEditor({ imageId, initialValue, runMe, token }) {
                 return
             }
             setIsEditingName(false)
-            runMe(newName)
+            runMe(nameInput)
         } catch (err){
             setError("Unknown Error")
         } finally {

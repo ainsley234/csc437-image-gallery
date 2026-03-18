@@ -8,6 +8,7 @@ export class ImageProvider {
         const imgCollectionName = getEnvVar("IMAGES_COLLECTION_NAME");
         this.collection_img = this.mongoClient.db().collection(imgCollectionName);
         this.userCollectionName = getEnvVar("USERS_COLLECTION_NAME");
+        this.collection_users = this.mongoClient.db().collection(this.userCollectionName);
     }
 
     async getAllImages() {
@@ -44,26 +45,27 @@ export class ImageProvider {
           }
         );
 
-        pipeline.push({ $unset: ['authorId', 'author_mapping'] });
+        pipeline.push({ $unset: ['author_mapping'] });
 
         return images.aggregate(pipeline).toArray();
     }
 
     async getOneImage(imageId) {
-        const imageArray = await this.getAllImages()
-        // ID not in database, return HTTP 404 Not Found
-        if (!ObjectId.isValid(imageId)) { return "404" }
-        const givenID =  new ObjectId(imageId)
-        return imageArray.filter((img) => img._id.equals(givenID))
+        const imageArray = await this.getAllImages();
+        if (!ObjectId.isValid(imageId)) { return "404"; }
+
+        const givenID = new ObjectId(imageId);
+        const image = imageArray.find((img) => img._id.equals(givenID));
+
+        return image || "404";
     }
 
     async updateImageName(imageId, newName) {
-        const MAX_NAME_LENGTH = 100;
 
         //check for errors
         if (!ObjectId.isValid(imageId)) { return 0 }
         if (typeof newName !== "string" || newName.trim().length === 0) { throw new Error("400") }
-        if (newName.length > MAX_NAME_LENGTH) {  throw new Error("413") }
+        if (newName.length > getEnvVar("MAX_NAME_LENGTH")) {  throw new Error("413") }
 
         const result = await this.collection_img.updateOne(
             { _id: new ObjectId(imageId) },
@@ -73,16 +75,22 @@ export class ImageProvider {
         return result.matchedCount
     }
 
-    async createImage(file) {
+    async getUserByUsername(username) {
+        const allUsers = await this.collection_users.find({}).toArray();
+        const user = await this.collection_users.findOne({ username: username });
+        return user;
+    }
+
+    async createImage({ filename, name,  authorId }) {
         const document = {
-            src = `/uploads/${req.file.filename}`,
-            name = req.body.name,
-            authorId = 0, ///GET THIS FROM token
+            src: `/uploads/${filename}`,
+            name: name,
+            authorId: authorId,
             createdAt: new Date()
         }
+
         const result = await this.collection_img.insertOne(document);
         return result.insertedId;
-
     }
 }
 

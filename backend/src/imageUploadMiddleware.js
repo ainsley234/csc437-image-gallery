@@ -1,4 +1,5 @@
 import multer from "multer";
+import { getEnvVar } from "./getEnvVar.js";
 
 class ImageFormatError extends Error {}
 
